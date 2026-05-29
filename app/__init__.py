@@ -1,1 +1,1 @@
-"""Python SERP entity analyzer package."""
+"""主應用 package。"""

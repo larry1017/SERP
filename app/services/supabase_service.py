@@ -4,10 +4,12 @@ from app.models import AnalysisResponse
 
 
 def create_supabase_client(url: str, key: str) -> Client:
+    # 建立後端使用的 Supabase client。
     return create_client(url, key)
 
 
 def save_analysis(client: Client, analysis: AnalysisResponse, user_id: str) -> str:
+    # 先存一筆「這次查詢」到 analysis_runs。
     run_response = (
         client.table("analysis_runs")
         .insert(
@@ -22,6 +24,7 @@ def save_analysis(client: Client, analysis: AnalysisResponse, user_id: str) -> s
     )
     run_id = run_response.data[0]["id"]
 
+    # 再逐篇存文章，並把 run_id 關聯回這次查詢。
     for article in analysis.articles:
         article_response = (
             client.table("analysis_articles")
@@ -39,6 +42,7 @@ def save_analysis(client: Client, analysis: AnalysisResponse, user_id: str) -> s
             .execute()
         )
         article_id = article_response.data[0]["id"]
+        # 如果有 entity，就把每個 entity 再展開成獨立資料列。
         if article.entities:
             client.table("analysis_entities").insert(
                 [

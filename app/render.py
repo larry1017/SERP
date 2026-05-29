@@ -4,10 +4,12 @@ from app.models import AnalysisResponse
 
 
 def render_page(message: str = "", result: AnalysisResponse | None = None, user_email: str | None = None) -> str:
+    # 預設畫面：尚未分析前只顯示引導文字。
     result_html = '<div class="empty">登入後輸入關鍵字即可開始分析。</div>'
     if result:
         cards = []
         for article in result.articles:
+            # 把單篇文章中的 entity 明細組成小卡片。
             entities = "".join(
                 f"""
                 <div class="entity">
@@ -18,6 +20,7 @@ def render_page(message: str = "", result: AnalysisResponse | None = None, user_
                 """
                 for entity in article.entities
             ) or "<p class='muted'>這篇文章沒有成功抓到 entity。</p>"
+            # 每篇搜尋結果渲染成一張文章卡片。
             cards.append(
                 f"""
                 <article class="card">
@@ -37,6 +40,7 @@ def render_page(message: str = "", result: AnalysisResponse | None = None, user_
                 </article>
                 """
             )
+        # 先渲染總結卡，再接上每篇文章卡片。
         result_html = f"""
         <section class="card">
             <p>查詢詞: <strong>{escape(result.query)}</strong></p>
@@ -45,6 +49,7 @@ def render_page(message: str = "", result: AnalysisResponse | None = None, user_
         {''.join(cards)}
         """
 
+    # 直接回傳完整 HTML，這個專案沒有另外用模板引擎。
     return f"""
     <!doctype html>
     <html lang="zh-Hant">

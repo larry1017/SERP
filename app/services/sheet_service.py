@@ -11,6 +11,7 @@ SCOPE = [
 
 
 def _get_client(client_email: str, private_key: str) -> gspread.Client:
+    # 用 service account 建立 Google Sheets API client。
     credentials = Credentials.from_service_account_info(
         {
             "type": "service_account",
@@ -24,6 +25,7 @@ def _get_client(client_email: str, private_key: str) -> gspread.Client:
 
 
 def _get_or_create_worksheet(spreadsheet: gspread.Spreadsheet, name: str) -> gspread.Worksheet:
+    # 如果工作表已存在就沿用，否則自動建立。
     try:
         return spreadsheet.worksheet(name)
     except gspread.WorksheetNotFound:
@@ -33,12 +35,15 @@ def _get_or_create_worksheet(spreadsheet: gspread.Spreadsheet, name: str) -> gsp
 def sync_analysis_to_sheet(
     analysis: AnalysisResponse, sheet_key: str, client_email: str, private_key: str
 ) -> str:
+    # 開啟指定的 Google Sheet。
     client = _get_client(client_email, private_key)
     spreadsheet = client.open_by_key(sheet_key)
 
+    # summary 放文章總覽，entities 放逐筆 entity 明細。
     summary_sheet = _get_or_create_worksheet(spreadsheet, "summary")
     entities_sheet = _get_or_create_worksheet(spreadsheet, "entities")
 
+    # 先建立標題列。
     summary_rows = [[
         "query",
         "analyzed_at",
@@ -59,6 +64,7 @@ def sync_analysis_to_sheet(
         "salience",
     ]]
 
+    # 把單篇文章摘要與 entity 明細轉成二維表格資料。
     for article in analysis.articles:
         summary_rows.append([
             analysis.query,
@@ -81,6 +87,7 @@ def sync_analysis_to_sheet(
                 entity.salience,
             ])
 
+    # 每次同步前先清掉舊內容，確保工作表反映最新分析結果。
     summary_sheet.clear()
     summary_sheet.update(summary_rows)
     entities_sheet.clear()

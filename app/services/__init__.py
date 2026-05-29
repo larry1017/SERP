@@ -1,1 +1,1 @@
-"""Service layer."""
+"""所有商業邏輯 service 都集中在這裡。"""

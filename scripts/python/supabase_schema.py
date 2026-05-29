@@ -1,3 +1,4 @@
+# 專案初始化用的 Supabase schema。
 SCHEMA_SQL = """
 create extension if not exists "pgcrypto";
 
@@ -35,4 +36,5 @@ create table if not exists public.analysis_entities (
 
 
 if __name__ == "__main__":
+    # 直接印出 SQL，方便貼到 Supabase SQL Editor。
     print(SCHEMA_SQL)
