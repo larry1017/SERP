@@ -1,0 +1,10 @@
+.next
+node_modules
+.env
+.env.local
+.venv
+.vercel
+dist
+coverage
+__pycache__
+*.pyc
